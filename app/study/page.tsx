@@ -87,6 +87,21 @@ const ObsidianComponents = (
     }
     return <p {...props}>{children}</p>;
   },
+  // Style blockquotes more prominently (for "Related:" sections)
+  blockquote: ({ children, ...props }: any) => {
+    return (
+      <blockquote
+        className="border-l-2 border-violet-500 bg-violet-900/10 p-4 my-4 rounded-r-lg"
+        {...props}
+      >
+        {children}
+      </blockquote>
+    );
+  },
+  // Style horizontal rules
+  hr: ({ ...props }: any) => (
+    <hr className="border-zinc-800 my-8" {...props} />
+  ),
 });
 
 export default function StudyPage() {
@@ -136,8 +151,16 @@ export default function StudyPage() {
     setLoading(true);
     try {
       const data = await vault.getFile(file.path);
-      setFileContent(data.content);
-      setEditedContent(data.content);
+      // Remove YAML frontmatter (between --- markers)
+      let content = data.content;
+      if (content.startsWith('---')) {
+        const endMarker = content.indexOf('---', 3);
+        if (endMarker !== -1) {
+          content = content.substring(endMarker + 3).trimStart();
+        }
+      }
+      setFileContent(content);
+      setEditedContent(content);
       setSelectedFile(file);
     } catch (err: unknown) {
       console.error("Failed to load file:", err);
