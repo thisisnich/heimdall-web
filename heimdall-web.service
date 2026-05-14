@@ -1,0 +1,19 @@
+[Unit]
+Description=Heimdall Web Frontend (Next.js)
+After=network.target heimdall.service
+Wants=heimdall.service
+
+[Service]
+Type=simple
+User=heimdall
+Group=heimdall
+WorkingDirectory=/opt/heimdall-web
+ExecStart=/usr/bin/node node_modules/.bin/next start --port 3000 --hostname 0.0.0.0
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=heimdall-web
+
+[Install]
+WantedBy=multi-user.target
