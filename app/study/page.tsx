@@ -175,7 +175,7 @@ export default function StudyPage() {
                   className="w-full h-[500px] bg-zinc-950 border border-zinc-800 rounded-lg p-4 text-sm text-zinc-200 font-mono focus:outline-none focus:border-violet-500 resize-none"
                 />
               ) : (
-                <div className="prose prose-invert prose-sm max-w-none prose-headings:text-zinc-100 prose-p:text-zinc-300 prose-a:text-violet-400 prose-strong:text-zinc-100 prose-code:text-violet-300 prose-pre:bg-zinc-950 prose-pre:border prose-pre:border-zinc-800">
+                <div className="prose prose-invert prose-sm max-w-none prose-headings:text-zinc-100 prose-headings:font-semibold prose-p:text-zinc-300 prose-a:text-violet-400 prose-a:no-underline hover:prose-a:underline prose-strong:text-zinc-100 prose-code:text-violet-300 prose-code:bg-zinc-800 prose-code:px-1 prose-code:rounded prose-pre:bg-zinc-950 prose-pre:border prose-pre:border-zinc-800 prose-pre:text-xs prose-blockquote:border-l-violet-500 prose-blockquote:text-zinc-400 prose-hr:border-zinc-800 prose-table:text-zinc-300 prose-th:text-zinc-100 prose-th:border-zinc-700 prose-td:border-zinc-800 prose-ul:list-disc prose-ol:list-decimal">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{fileContent}</ReactMarkdown>
                 </div>
               )}
