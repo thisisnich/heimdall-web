@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import Shell from "@/components/Shell";
 import { BookOpen, Brain, Target, Upload, Calendar, CheckCircle, Clock, ChevronRight, Sparkles, FileText, Search, File, Edit3, Save, X, ArrowLeft } from "lucide-react";
 import { chat, vault } from "@/lib/api";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface Course {
   code: string;
@@ -173,8 +175,8 @@ export default function StudyPage() {
                   className="w-full h-[500px] bg-zinc-950 border border-zinc-800 rounded-lg p-4 text-sm text-zinc-200 font-mono focus:outline-none focus:border-violet-500 resize-none"
                 />
               ) : (
-                <div className="prose prose-invert prose-sm max-w-none">
-                  <pre className="whitespace-pre-wrap text-sm text-zinc-300 leading-relaxed">{fileContent}</pre>
+                <div className="prose prose-invert prose-sm max-w-none prose-headings:text-zinc-100 prose-p:text-zinc-300 prose-a:text-violet-400 prose-strong:text-zinc-100 prose-code:text-violet-300 prose-pre:bg-zinc-950 prose-pre:border prose-pre:border-zinc-800">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{fileContent}</ReactMarkdown>
                 </div>
               )}
             </div>
