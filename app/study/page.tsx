@@ -140,6 +140,8 @@ export default function StudyPage() {
   const [files, setFiles] = useState<VaultFile[]>([]);
   const [selectedFile, setSelectedFile] = useState<VaultFile | null>(null);
   const [fileContent, setFileContent] = useState("");
+  const [originalContent, setOriginalContent] = useState("");
+  const [yamlFrontmatter, setYamlFrontmatter] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState("");
   const [saving, setSaving] = useState(false);
@@ -176,16 +178,23 @@ export default function StudyPage() {
     setLoading(true);
     try {
       const data = await vault.getFile(file.path);
-      // Remove YAML frontmatter (between --- markers)
-      let content = data.content;
+      const fullContent = data.content;
+      
+      // Extract YAML frontmatter (between --- markers)
+      let frontmatter = "";
+      let content = fullContent;
       if (content.startsWith('---')) {
         const endMarker = content.indexOf('---', 3);
         if (endMarker !== -1) {
+          frontmatter = content.substring(0, endMarker + 3);
           content = content.substring(endMarker + 3).trimStart();
         }
       }
+      
+      setOriginalContent(fullContent);
+      setYamlFrontmatter(frontmatter);
       setFileContent(content);
-      setEditedContent(content);
+      setEditedContent(fullContent); // Edit full content including frontmatter
       setSelectedFile(file);
     } catch (err: unknown) {
       console.error("Failed to load file:", err);
@@ -199,7 +208,19 @@ export default function StudyPage() {
     setSaving(true);
     try {
       await vault.updateFile(selectedFile.path, editedContent);
-      setFileContent(editedContent);
+      // Re-extract frontmatter and content after save
+      let frontmatter = "";
+      let content = editedContent;
+      if (content.startsWith('---')) {
+        const endMarker = content.indexOf('---', 3);
+        if (endMarker !== -1) {
+          frontmatter = content.substring(0, endMarker + 3);
+          content = content.substring(endMarker + 3).trimStart();
+        }
+      }
+      setOriginalContent(editedContent);
+      setYamlFrontmatter(frontmatter);
+      setFileContent(content);
       setIsEditing(false);
     } catch (err: unknown) {
       console.error("Failed to save file:", err);
@@ -322,7 +343,7 @@ export default function StudyPage() {
                   Save
                 </button>
                 <button
-                  onClick={() => { setIsEditing(false); setEditedContent(fileContent); }}
+                  onClick={() => { setIsEditing(false); setEditedContent(originalContent); }}
                   className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
                 >
                   <X size={16} />
