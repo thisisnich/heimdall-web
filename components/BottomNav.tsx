@@ -18,7 +18,7 @@ const NAV = [
 export default function BottomNav() {
   const path = usePathname();
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-zinc-900 border-t border-zinc-800 flex safe-area-pb">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-zinc-900 border-t border-zinc-800 flex safe-area-pb md:hidden">
       {NAV.map(({ href, icon: Icon, label }) => {
         const active = path === href || (href !== "/" && path.startsWith(href));
         return (
