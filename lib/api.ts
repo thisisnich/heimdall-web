@@ -106,6 +106,18 @@ export const vault = {
   sync: () => request<{ status: string }>("/vault/sync", { method: "POST" }),
   syncNow: () => request<{ status: string }>("/vault/sync/now", { method: "POST" }),
   status: () => request<{ path: string; note_count: number; last_sync?: string; status: string }>("/vault/status"),
+  files: (params: { course?: string; topic?: string } = {}) => {
+    const q = new URLSearchParams();
+    if (params.course) q.set("course", params.course);
+    if (params.topic) q.set("topic", params.topic);
+    return request<{ files: Array<{ name: string; path: string; stem: string; size: number; modified: number }> }>(`/vault/files?${q}`);
+  },
+  getFile: (path: string) => request<{ path: string; name: string; content: string; size: number; modified: number }>(`/vault/files/${encodeURIComponent(path)}`),
+  updateFile: (path: string, content: string) =>
+    request<{ status: string; path: string; size: number }>(`/vault/files/${encodeURIComponent(path)}`, {
+      method: "PUT",
+      body: JSON.stringify({ content }),
+    }),
 };
 
 // ── Goals & Todos ─────────────────────────────────────────────────────────────
