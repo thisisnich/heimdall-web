@@ -1,10 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
+import React from "react";
 import Shell from "@/components/Shell";
 import { BookOpen, Brain, Target, Upload, Calendar, CheckCircle, Clock, ChevronRight, Sparkles, FileText, Search, File, Edit3, Save, X, ArrowLeft, Hash } from "lucide-react";
 import { chat, vault } from "@/lib/api";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import mermaid from "mermaid";
 
 interface Course {
   code: string;
@@ -64,17 +66,17 @@ const ObsidianComponents = (
       </a>
     );
   },
-  // Handle tags #tag
-  p: ({ children, ...props }: any) => {
+  // Handle tags #tag - render as proper tags anywhere in text
+  text: ({ children, ...props }: any) => {
     if (typeof children === 'string') {
       // Replace #tag with styled tag components
       const parts = children.split(/(#[\w-]+)/g);
       return (
-        <p {...props}>
+        <span {...props}>
           {parts.map((part, i) => {
             if (part.startsWith('#')) {
               return (
-                <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 bg-violet-900/30 text-violet-400 rounded-full text-xs font-medium">
+                <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 bg-violet-900/30 text-violet-400 rounded-full text-xs font-medium hover:bg-violet-900/50 transition-colors cursor-pointer">
                   <Hash size={10} />
                   {part.slice(1)}
                 </span>
@@ -82,10 +84,10 @@ const ObsidianComponents = (
             }
             return part;
           })}
-        </p>
+        </span>
       );
     }
-    return <p {...props}>{children}</p>;
+    return <span {...props}>{children}</span>;
   },
   // Style blockquotes more prominently (for "Related:" sections)
   blockquote: ({ children, ...props }: any) => {
@@ -102,6 +104,29 @@ const ObsidianComponents = (
   hr: ({ ...props }: any) => (
     <hr className="border-zinc-800 my-8" {...props} />
   ),
+  // Handle code blocks for mermaid
+  pre: ({ children, ...props }: any) => {
+    const child = React.Children.only(children);
+    if (React.isValidElement(child) && child.props.className?.includes('language-mermaid')) {
+      const MermaidDiagram = () => {
+        const [svg, setSvg] = useState<string>('');
+        const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+        
+        useEffect(() => {
+          mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+          mermaid.render(id, child.props.children.toString())
+            .then(result => setSvg(result.svg))
+            .catch(console.error);
+        }, [child.props.children]);
+        
+        return <div dangerouslySetInnerHTML={{ __html: svg }} className="flex justify-center my-4" />;
+      };
+      
+      return <MermaidDiagram />;
+    }
+    
+    return <pre {...props}>{children}</pre>;
+  },
 });
 
 export default function StudyPage() {
