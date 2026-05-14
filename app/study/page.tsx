@@ -30,7 +30,9 @@ interface VaultFile {
 }
 
 // Custom components for Obsidian-style markdown
-const ObsidianComponents = {
+const ObsidianComponents = (
+  onWikiLinkClick: (link: string) => void
+) => ({
   // Handle wiki links [[link]] and [[link|text]]
   a: ({ href, children, ...props }: any) => {
     // Check if it's a wiki link (starts with [[ or has no href)
@@ -40,13 +42,13 @@ const ObsidianComponents = {
         const link = match[1];
         const text = match[2] || link;
         return (
-          <a
-            href={`/study?file=${encodeURIComponent(link)}`}
-            className="text-violet-400 hover:text-violet-300 hover:underline"
+          <button
+            onClick={() => onWikiLinkClick(link)}
+            className="text-violet-400 hover:text-violet-300 hover:underline cursor-pointer"
             {...props}
           >
             {text}
-          </a>
+          </button>
         );
       }
     }
@@ -85,7 +87,7 @@ const ObsidianComponents = {
     }
     return <p {...props}>{children}</p>;
   },
-};
+});
 
 export default function StudyPage() {
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
@@ -156,6 +158,28 @@ export default function StudyPage() {
       alert("Failed to save file");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleWikiLinkClick(link: string) {
+    // Try to find the file in the current file list
+    const matchedFile = files.find(f => f.stem === link || f.stem.includes(link));
+    if (matchedFile) {
+      await loadFileContent(matchedFile);
+    } else {
+      // If not found in current list, try to load all files and search
+      try {
+        const allFiles = await vault.files();
+        const allMatchedFile = allFiles.files.find(f => f.stem === link || f.stem.includes(link));
+        if (allMatchedFile) {
+          await loadFileContent(allMatchedFile);
+        } else {
+          alert(`File "${link}" not found`);
+        }
+      } catch (err) {
+        console.error("Failed to search for file:", err);
+        alert(`Failed to find file "${link}"`);
+      }
     }
   }
 
@@ -233,8 +257,8 @@ export default function StudyPage() {
                   className="w-full h-[500px] bg-zinc-950 border border-zinc-800 rounded-lg p-4 text-sm text-zinc-200 font-mono focus:outline-none focus:border-violet-500 resize-none"
                 />
               ) : (
-                <div className="prose prose-invert prose-base max-w-none prose-headings:text-zinc-100 prose-headings:font-bold prose-headings:mb-4 prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-p:text-zinc-300 prose-p:leading-relaxed prose-a:text-violet-400 prose-a:no-underline hover:prose-a:underline prose-strong:text-zinc-100 prose-code:text-violet-300 prose-code:bg-zinc-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-pre:bg-zinc-950 prose-pre:border prose-pre:border-zinc-800 prose-pre:text-xs prose-blockquote:border-l-violet-500 prose-blockquote:text-zinc-400 prose-blockquote:pl-4 prose-blockquote:italic prose-hr:border-zinc-800 prose-table:text-zinc-300 prose-th:text-zinc-100 prose-th:border-zinc-700 prose-td:border-zinc-800 prose-ul:list-disc prose-ol:list-decimal prose-li:text-zinc-300">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={ObsidianComponents}>{fileContent}</ReactMarkdown>
+                <div className="prose prose-invert prose-base max-w-none prose-headings:text-zinc-100 prose-headings:font-bold prose-headings:mb-3 prose-headings:mt-6 prose-h1:text-3xl prose-h1:font-bold prose-h1:tracking-tight prose-h2:text-2xl prose-h2:font-semibold prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-xl prose-h3:font-medium prose-h3:mt-6 prose-h3:mb-3 prose-h4:text-lg prose-h4:font-medium prose-h4:mt-4 prose-h4:mb-2 prose-p:text-zinc-300 prose-p:leading-7 prose-p:mb-4 prose-a:text-violet-400 prose-a:no-underline hover:prose-a:underline prose-strong:text-zinc-100 prose-strong:font-semibold prose-code:text-violet-300 prose-code:bg-zinc-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-pre:bg-zinc-950 prose-pre:border prose-pre:border-zinc-800 prose-pre:text-xs prose-blockquote:border-l-violet-500 prose-blockquote:text-zinc-400 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:my-4 prose-hr:border-zinc-800 prose-hr:my-6 prose-table:text-zinc-300 prose-th:text-zinc-100 prose-th:border-zinc-700 prose-th:border-b prose-td:border-zinc-800 prose-td:border-b prose-ul:list-disc prose-ol:list-decimal prose-li:text-zinc-300 prose-li:mb-1">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={ObsidianComponents(handleWikiLinkClick)}>{fileContent}</ReactMarkdown>
                 </div>
               )}
             </div>
