@@ -1,13 +1,14 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MessageSquare, LayoutDashboard, Upload, Target, Repeat2, Wallet, Code2, Brain, BookOpen } from "lucide-react";
+import { MessageSquare, LayoutDashboard, Upload, Target, Repeat2, Wallet, Code2, Brain, BookOpen, GraduationCap } from "lucide-react";
 
 const NAV = [
   { href: "/", icon: LayoutDashboard, label: "Home" },
   { href: "/chat", icon: MessageSquare, label: "Chat" },
   { href: "/memory", icon: Brain, label: "Memory" },
   { href: "/vault", icon: BookOpen, label: "Vault" },
+  { href: "/study", icon: GraduationCap, label: "Study" },
   { href: "/ingest", icon: Upload, label: "Ingest" },
   { href: "/goals", icon: Target, label: "Goals" },
   { href: "/habits", icon: Repeat2, label: "Habits" },

@@ -13,6 +13,7 @@ import {
   Code2,
   ChevronRight,
   ChevronDown,
+  GraduationCap,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -23,6 +24,7 @@ const NAV_CATEGORIES = [
       { href: "/chat", icon: MessageSquare, label: "Chat" },
       { href: "/memory", icon: Brain, label: "Memory" },
       { href: "/vault", icon: BookOpen, label: "Vault" },
+      { href: "/study", icon: GraduationCap, label: "Study" },
     ],
   },
   {
