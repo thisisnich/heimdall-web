@@ -106,18 +106,24 @@ export const vault = {
   sync: () => request<{ status: string }>("/vault/sync", { method: "POST" }),
   syncNow: () => request<{ status: string }>("/vault/sync/now", { method: "POST" }),
   status: () => request<{ path: string; note_count: number; last_sync?: string; status: string }>("/vault/status"),
-  files: (params: { course?: string; topic?: string } = {}) => {
-    const q = new URLSearchParams();
-    if (params.course) q.set("course", params.course);
-    if (params.topic) q.set("topic", params.topic);
-    return request<{ files: Array<{ name: string; path: string; stem: string; size: number; modified: number }> }>(`/vault/files?${q}`);
+  async files(course?: string): Promise<{ files: VaultFile[] }> {
+    return request<{ files: VaultFile[] }>(`/vault/files${course ? `?course=${course}` : ""}`);
   },
-  getFile: (path: string) => request<{ path: string; name: string; content: string; size: number; modified: number }>(`/vault/files/${encodeURIComponent(path)}`),
-  updateFile: (path: string, content: string) =>
-    request<{ status: string; path: string; size: number }>(`/vault/files/${encodeURIComponent(path)}`, {
+  async getFile(path: string): Promise<{ content: string }> {
+    return request<{ content: string }>(`/vault/files/${encodeURIComponent(path)}`);
+  },
+  async updateFile(path: string, content: string): Promise<{ status: string; path: string }> {
+    return request<{ status: string; path: string }>(`/vault/files/${encodeURIComponent(path)}`, {
       method: "PUT",
       body: JSON.stringify({ content }),
-    }),
+    });
+  },
+  async ingestFile(content: string, filename: string): Promise<{ status: string; path: string; course: string; message: string }> {
+    return request<{ status: string; path: string; course: string; message: string }>("/vault/ingest", {
+      method: "POST",
+      body: JSON.stringify({ content, filename }),
+    });
+  },
 };
 
 // ── Goals & Todos ─────────────────────────────────────────────────────────────
