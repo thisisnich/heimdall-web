@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Shell from "@/components/Shell";
-import { BookOpen, Brain, Target, Upload, Calendar, CheckCircle, Clock, ChevronRight, Sparkles, FileText, Search, File, Edit3, Save, X, ArrowLeft } from "lucide-react";
+import { BookOpen, Brain, Target, Upload, Calendar, CheckCircle, Clock, ChevronRight, Sparkles, FileText, Search, File, Edit3, Save, X, ArrowLeft, Hash } from "lucide-react";
 import { chat, vault } from "@/lib/api";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -28,6 +28,64 @@ interface VaultFile {
   size: number;
   modified: number;
 }
+
+// Custom components for Obsidian-style markdown
+const ObsidianComponents = {
+  // Handle wiki links [[link]] and [[link|text]]
+  a: ({ href, children, ...props }: any) => {
+    // Check if it's a wiki link (starts with [[ or has no href)
+    if (!href && typeof children === 'string' && children.startsWith('[[')) {
+      const match = children.match(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/);
+      if (match) {
+        const link = match[1];
+        const text = match[2] || link;
+        return (
+          <a
+            href={`/study?file=${encodeURIComponent(link)}`}
+            className="text-violet-400 hover:text-violet-300 hover:underline"
+            {...props}
+          >
+            {text}
+          </a>
+        );
+      }
+    }
+    return (
+      <a
+        href={href}
+        className="text-violet-400 hover:text-violet-300 hover:underline"
+        target="_blank"
+        rel="noopener noreferrer"
+        {...props}
+      >
+        {children}
+      </a>
+    );
+  },
+  // Handle tags #tag
+  p: ({ children, ...props }: any) => {
+    if (typeof children === 'string') {
+      // Replace #tag with styled tag components
+      const parts = children.split(/(#[\w-]+)/g);
+      return (
+        <p {...props}>
+          {parts.map((part, i) => {
+            if (part.startsWith('#')) {
+              return (
+                <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 bg-violet-900/30 text-violet-400 rounded-full text-xs font-medium">
+                  <Hash size={10} />
+                  {part.slice(1)}
+                </span>
+              );
+            }
+            return part;
+          })}
+        </p>
+      );
+    }
+    return <p {...props}>{children}</p>;
+  },
+};
 
 export default function StudyPage() {
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
@@ -175,8 +233,8 @@ export default function StudyPage() {
                   className="w-full h-[500px] bg-zinc-950 border border-zinc-800 rounded-lg p-4 text-sm text-zinc-200 font-mono focus:outline-none focus:border-violet-500 resize-none"
                 />
               ) : (
-                <div className="prose prose-invert prose-sm max-w-none prose-headings:text-zinc-100 prose-headings:font-semibold prose-p:text-zinc-300 prose-a:text-violet-400 prose-a:no-underline hover:prose-a:underline prose-strong:text-zinc-100 prose-code:text-violet-300 prose-code:bg-zinc-800 prose-code:px-1 prose-code:rounded prose-pre:bg-zinc-950 prose-pre:border prose-pre:border-zinc-800 prose-pre:text-xs prose-blockquote:border-l-violet-500 prose-blockquote:text-zinc-400 prose-hr:border-zinc-800 prose-table:text-zinc-300 prose-th:text-zinc-100 prose-th:border-zinc-700 prose-td:border-zinc-800 prose-ul:list-disc prose-ol:list-decimal">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{fileContent}</ReactMarkdown>
+                <div className="prose prose-invert prose-base max-w-none prose-headings:text-zinc-100 prose-headings:font-bold prose-headings:mb-4 prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-p:text-zinc-300 prose-p:leading-relaxed prose-a:text-violet-400 prose-a:no-underline hover:prose-a:underline prose-strong:text-zinc-100 prose-code:text-violet-300 prose-code:bg-zinc-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-pre:bg-zinc-950 prose-pre:border prose-pre:border-zinc-800 prose-pre:text-xs prose-blockquote:border-l-violet-500 prose-blockquote:text-zinc-400 prose-blockquote:pl-4 prose-blockquote:italic prose-hr:border-zinc-800 prose-table:text-zinc-300 prose-th:text-zinc-100 prose-th:border-zinc-700 prose-td:border-zinc-800 prose-ul:list-disc prose-ol:list-decimal prose-li:text-zinc-300">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={ObsidianComponents}>{fileContent}</ReactMarkdown>
                 </div>
               )}
             </div>
