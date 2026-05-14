@@ -44,9 +44,12 @@ export default function StudyPage() {
 
   // Mock data - would come from vault/brain in production
   const courses: Course[] = [
-    { code: "EGE353", name: "Autonomous Mobile Robotics", topics: ["ROS Basics", "Navigation", "Mapping", "Localization"], progress: 65 },
-    { code: "EGE321", name: "Digital Signal Processing", topics: ["Fourier Series", "Time Domain", "Frequency Domain", "Filters"], progress: 40 },
-    { code: "EGE351", name: "Embedded Systems", topics: ["Microcontrollers", "Sensors", "Actuators", "Communication"], progress: 80 },
+    { code: "EGE353", name: "Autonomous Robotics", topics: ["ROS Basics", "Navigation", "Mapping", "Localization"], progress: 65 },
+    { code: "EGE321", name: "Wireless Communication & Networking", topics: ["Fourier Series", "Time Domain", "Frequency Domain", "Filters"], progress: 40 },
+    { code: "EGE351", name: "Automatino Systems & Control", topics: ["Microcontrollers", "Sensors", "Actuators", "Communication"], progress: 80 },
+    { code: "EGE301", name: "Communication & Workplace Success", topics: ["Professional Communication", "Teamwork", "Leadership"], progress: 30 },
+    { code: "EGE322", name: "IOT System Project", topics: ["IoT Architecture", "Sensors", "Cloud Integration"], progress: 20 },
+    { code: "EGE320", name: "Embedded System Design & Technology", topics: ["Embedded Design", "Hardware", "Software"], progress: 50 },
   ];
 
   const assignments: Assignment[] = [
